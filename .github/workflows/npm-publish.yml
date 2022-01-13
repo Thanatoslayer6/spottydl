@@ -21,10 +21,13 @@ jobs:
               with:
                   node-version: 12
                   registry-url: https://registry.npmjs.org
-            - name: publish
-            - run: npm install
-            - run: npm run build
-            - run: npm run docs
-            - run: npm publish --access public
+            - name: Install dependencies
+              run: npm install
+            - name: Build
+              run: npm run build
+            - name: Create Docs
+              run: npm run docs
+            - name: Publish to NPM
+              run: npm publish --access public
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
