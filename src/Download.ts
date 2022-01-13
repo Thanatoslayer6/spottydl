@@ -11,7 +11,7 @@ import { readFile, unlinkSync, writeFile } from 'fs'
      * @param {string} outputPath - String type, (optional) if not specified the output will be on the current dir
      * @returns {Results} <Results> if successful, `string` if failed
      */
-export const downloadTrack = async(obj: Track, outputPath: string = __dirname): Promise<Results|string> => {
+export const downloadTrack = async(obj: Track, outputPath: string = './'): Promise<Results|string> => {
     try {
         // Check type and check if file path exists...
         if (checkType(obj) != "Track"){
@@ -59,7 +59,7 @@ export const downloadTrack = async(obj: Track, outputPath: string = __dirname): 
      * @param {string} outputPath - String type, (optional) if not specified the output will be on the current dir
      * @returns {Results} <Results[]> if successful, `string` if failed
      */
-export const downloadAlbum = async (obj: Album, outputPath: string = __dirname): Promise<Results[]|string> => {
+export const downloadAlbum = async (obj: Album, outputPath: string = './'): Promise<Results[]|string> => {
     try {
         if (checkType(obj) != "Album"){
             throw Error("obj passed is not of type <Album>")
@@ -95,6 +95,7 @@ export const downloadAlbum = async (obj: Album, outputPath: string = __dirname):
                         tags.title = res.name;
                         tags.trackNumber = res.trackNumber;
                         let tagStatus = NodeID3.update(tags, filename)
+                        console.log(tagStatus ? `Finished: ${filename}` : `Failed to add tags: ${filename}`) 
                         if (i == obj.tracks.length){
                             resolve(Results);
                         }
