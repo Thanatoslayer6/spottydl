@@ -7,9 +7,9 @@ import { unlinkSync } from 'fs'
 
 // Experimental Private
 const dl_track = async(id: string, filename: string): Promise<boolean> => {
-    let stream = ytdl(id , { quality: 'highestaudio', filter: 'audioonly' })
+    // let stream = ytdl(id , { quality: 'highestaudio', filter: 'audioonly' })
     return await new Promise<boolean> ((resolve, reject) => {
-        ffmpeg(stream)
+        ffmpeg(ytdl(id , { quality: 'highestaudio', filter: 'audioonly' }))
           .audioBitrate(128)
           .save(filename)
           .on('error', (err: any) => {
@@ -22,6 +22,67 @@ const dl_track = async(id: string, filename: string): Promise<boolean> => {
           })
     })
 }
+
+const dl_album_normal = async(obj: Album, oPath: string, tags: any): Promise<Results[]> => {
+    let Results: any = [];
+    for await (let res of obj.tracks) {
+        let filename = `${oPath}${res.name}.mp3`
+        let dlt = await dl_track(res.id, filename);
+        if (dlt) {
+            let tagStatus = NodeID3.update(tags, filename)
+            if (tagStatus) {
+                console.log(`Finished: ${filename}`)
+                Results.push({ status: "Success", filename: filename })
+            } else {
+                console.log(`Failed: ${filename} (tags)`)
+                Results.push({ status: "Failed (tags)", filename: filename, tags: tags })
+            }
+        } else {
+            console.log(`Failed: ${filename} (stream)`)
+            Results.push({ status: "Failed (stream)", filename: filename, id: res.id, tags: tags })
+        }
+    }
+    return Results;
+}
+
+const dl_album_fast = async(obj: Album, oPath: string, tags: any): Promise<Results[]> => {
+    let Results: any = [];
+    let i: number = 0; // Variable for specifying the index of the loop
+    return await new Promise<Results[]> (async (resolve, reject) => {
+        for await (let res of obj.tracks) {
+            let filename = `${oPath}${res.name}.mp3`
+            // let stream = ytdl(res.id, { quality: 'highestaudio', filter: 'audioonly' })
+            ffmpeg(ytdl(res.id, { quality: 'highestaudio', filter: 'audioonly' }))
+                .audioBitrate(128)
+                .save(filename)
+                .on('error', (err: any) => {
+                    tags.title = res.name; // Tags
+                    tags.trackNumber = res.trackNumber;
+                    Results.push({ status: "Failed (stream)", filename: filename, id: res.id, tags: tags })
+                    console.error(`Failed to write file (${filename}): ${err}`)
+                    unlinkSync(filename)
+                    // reject(err)
+                })
+                .on('end', () => {
+                    i++;
+                    tags.title = res.name;
+                    tags.trackNumber = res.trackNumber;
+                    let tagStatus = NodeID3.update(tags, filename)
+                    if (tagStatus) {
+                        console.log(`Finished: ${filename}`);
+                        Results.push({ status: "Success", filename: filename })
+                    } else {
+                        console.log(`Failed to add tags: ${filename}`);
+                        Results.push({ status: "Failed (tags)", filename: filename, id: res.id, tags: tags })
+                    }
+                    if (i == obj.tracks.length){
+                        resolve(Results);
+                    }
+                })
+        }
+    })
+}
+// END
 
     /**
      * Download the Spotify Track, need a <Track> type for first param, the second param is optional
@@ -59,29 +120,10 @@ export const downloadTrack = async(obj: Track, outputPath: string = './'): Promi
         } else {
             return [{ status: "Failed (stream)", filename: filename, id: obj.id, tags: tags }]
         }
-        // END
-        // let stream = ytdl(obj.id , { quality: 'highestaudio', filter: 'audioonly' })
-        // return await new Promise<Results[]>((resolve, reject) => {
-        //     ffmpeg(stream)
-        //       .audioBitrate(128)
-        //       .save(filename)
-        //       .on('error', (err: any) => {
-        //           console.error(`Failed to write file (${filename}): ${err}`)
-        //           unlinkSync(filename)
-        //           reject([{ status: "Failed", filename: filename, id: obj.id, tags: tags }])
-        //       })
-        //       .on('end', () => {
-        //           let tagStatus = NodeID3.update(tags, filename)
-        //           if (tagStatus) {
-        //             resolve([{ status: "Success", filename: filename }])
-        //           } else {
-        //             reject([{ status: "Tags", filename: filename, tags: tags }]);
-        //           }
-        //       })
-        // })
-        } catch (err: any) {
-            return `Caught: ${err}`
-        }
+                
+    } catch (err: any) {
+        return `Caught: ${err}`
+    }
 }
 
     /**
@@ -89,16 +131,15 @@ export const downloadTrack = async(obj: Track, outputPath: string = './'): Promi
      * function will return an array of <Results>  
      * @param {Album} obj An object of type <Album>, contains Album details and info
      * @param {string} outputPath - String type, (optional) if not specified the output will be on the current dir
-     * @param {string} speed - String type, (optional) can be `normal` or `fast`. Normal is safer, use it if u have slow bandwidth
+     * @param {boolean} sync - Boolean type, (optional) can be `true` or `false`. Normal (true) is safer/less errors, for slower bandwidths
      * @returns {Results[]} <Results[]> if successful, `string` if failed
      */
-export const downloadAlbum = async (obj: Album, outputPath: string = './', speed: string = 'normal'): Promise<Results[]|string> => {
+export const downloadAlbum = async (obj: Album, outputPath: string = './', sync: boolean = true): Promise<Results[]|string> => {
     try {
         if (checkType(obj) != "Album"){
             throw Error("obj passed is not of type <Album>")
         } 
         let albCover = await axios.get(obj.albumCoverURL, { responseType: 'arraybuffer' })
-        let Results: any = [] // Use later inside the main loop, then we return this
         let tags: any = {
             artist: obj.artist,
             album: obj.name,
@@ -109,62 +150,57 @@ export const downloadAlbum = async (obj: Album, outputPath: string = './', speed
         }
         let oPath = checkPath(outputPath)
         // EXPERIMENTAL
-        return await new Promise <Results[]> (async (resolve, reject) => {
-            if (speed == "normal") {
-                for await (let res of obj.tracks) {
-                    let filename = `${oPath}${res.name}.mp3`
-                    let dlt = await dl_track(res.id, filename);
-                    if (dlt) {
-                        let tagStatus = NodeID3.update(tags, filename)
-                        if (tagStatus) {
-                            console.log(`Finished: ${filename}`)
-                            Results.push({ status: "Success", filename: filename })
-                        } else {
-                            console.log(`Failed: ${filename} (tags)`)
-                            Results.push({ status: "Failed (tags)", filename: filename, tags: tags })
-                        }
+        if (sync) {
+            return await dl_album_normal(obj, oPath, tags);
+        } else {
+            return await dl_album_fast(obj, oPath, tags)
+        }
+    } catch (err: any) {
+        return `Caught: ${err}`
+    }
+}
+
+    /**
+     * Retries the download process if there are errors. Only use this after `downloadTrack()` or `downloadAlbum()` methods
+     * checks for failed downloads then tries again, returns <Results[]> object array
+     * @param {Results[]} obj An object of type <Results[]>, contains an array of results
+     * @returns {Results[]} <Results[]> if successful, `string` if failed
+     */
+export const retryDownload = async(Info: Results[]): Promise<Results[]|string> => {
+    try {
+        if (checkType(Info) != "Results[]"){
+            throw Error("obj passed is not of type <Results[]>")           
+        }
+        // Filter the results
+        let failedStream = Info.filter(i => i.status == 'Failed (stream)' || i.status == 'Failed (tags)')
+        if (failedStream.length == 0){ // Check
+            console.log(`No Errors found :D`)
+        }
+        let Results: any = [];
+        failedStream.map(async (i: any) => {
+            if (i.status == "Failed (stream)"){
+                let dlt = await dl_track(i.id, i.filename);
+                if (dlt) {
+                    let tagStatus = NodeID3.update(i.tags, i.filename)
+                    if (tagStatus) {
+                        Results.push({ status: "Success", filename: i.filename })
                     } else {
-                        console.log(`Failed: ${filename} (stream)`)
-                        Results.push({ status: "Failed (stream)", filename: filename, id: res.id, tags: tags })
+                        Results.push({ status: "Failed (tags)", filename: i.filename, tags: i.tags })
                     }
+                } else {
+                    Results.push({ status: "Failed (stream)", filename: i.filename, id: i.id, tags: i.tags })
                 }
-                // END
-            } else if (speed == "fast") {
-                let i: number = 0; // Variable for specifying the index of the loop
-                for await (let res of obj.tracks){
-                    let filename = `${oPath}${res.name}.mp3`
-                    let stream = ytdl(res.id, { quality: 'highestaudio', filter: 'audioonly' })
-                    ffmpeg(stream)
-                        .audioBitrate(128)
-                        .save(filename)
-                        .on('error', (err: any) => {
-                            tags.title = res.name; // Tags
-                            tags.trackNumber = res.trackNumber;
-                            Results.push({ status: "Failed", filename: filename, id: res.id, tags: tags })
-                            console.error(`Failed to write file (${filename}): ${err}`)
-                            unlinkSync(filename)
-                            // reject(err)
-                        })
-                        .on('end', () => {
-                            i++;
-                            tags.title = res.name;
-                            tags.trackNumber = res.trackNumber;
-                            let tagStatus = NodeID3.update(tags, filename)
-                            if (tagStatus) {
-                                console.log(`Finished: ${filename}`);
-                                Results.push({ status: "Success", filename: filename })
-                            } else {
-                                console.log(`Failed to add tags: ${filename}`);
-                                Results.push({ status: "Tags", filename: filename, id: res.id, tags: tags })
-                            }
-                            if (i == obj.tracks.length){
-                                resolve(Results);
-                            }
-                        })
+            } else if (i.status == "Failed (tags)"){
+                let tagStatus = NodeID3.update(i.tags, i.filename)
+                if (tagStatus) {
+                    Results.push({ status: "Success", filename: i.filename })
+                } else {
+                    Results.push({ status: "Failed (tags)", filename: i.filename, tags: i.tags })
                 }
             }
         })
-    } catch (err: any) {
+        return Results;
+    } catch (err) {
         return `Caught: ${err}`
     }
 }

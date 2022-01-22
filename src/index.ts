@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { isArray } from 'util'
 import os from 'os'
 export { getAlbum, getTrack } from './Info'
-export { downloadAlbum, downloadTrack } from './Download'
+export { downloadAlbum, downloadTrack, retryDownload } from './Download'
 
 export type Track = {
     title: string,
@@ -30,8 +30,8 @@ export interface Results {
 }
 
     /**
-     * Check the type of the object, can be of type <Track> or <Album>
-     * @param {Track|Album|Results[]} ob An object, can be type <Track> or <Album>
+     * Check the type of the object, can be of type <Track>, <Album> or <Results[]>
+     * @param {Track|Album|Results[]} ob An object, can be type <Track>, <Album> or <Results[]>
      * @returns {string} "Track" | "Album" | "Results[]" | "None"
      */
 export const checkType = (ob: Track | Album | Results[]): "Track" | "Album" | "Results[]" | "None"  => {
