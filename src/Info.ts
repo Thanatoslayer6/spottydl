@@ -57,7 +57,6 @@ export const getAlbum = async (url: string = ""): Promise<Album|string> => {
         let properURL = `http://embed.spotify.com/?uri=spotify:${spURL[3]}:${spURL[4]}`
         let sp = await axios.get(properURL)
         let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
-
         let tags : Album =  {
             name: spData.name,
             artist: spData.artists.map((e: any) => e.name ).join(', '),
@@ -69,7 +68,7 @@ export const getAlbum = async (url: string = ""): Promise<Album|string> => {
         await ytm.initialize()
         let alb = await ytm.search(`${tags.artist} - ${tags.name}`, "ALBUM")
         let albData = await ytm.getAlbum(alb[0].albumId)
-        albData.songs.map((i: any, n: number) => tags.tracks.push({ name: i.name, id: i.videoId, trackNumber: n + 1 }))
+        albData.songs.map((i: any, n: number) => tags.tracks.push({ name: spData.tracks.items[n].name, id: i.videoId, trackNumber: spData.tracks.items[n].track_number }))
         return tags
 
     } catch (err: any) {
