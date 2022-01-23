@@ -8,7 +8,8 @@ However, this **requires [ffmpeg](https://ffmpeg.org/download.html)** to be inst
 
 - [x] **Automatic tagging of .mp3 files** using [Node-ID3](https://github.com/Zazama/node-id3) includes _Year, Artist, Album, Title, and Art Cover_
 - [x] **Simple and easy to use**, contains only 4 usable methods 🤔 I do need some help optimizing some parts
-- [ ] Error checking, when downloading Tracks or Albums, like retrying the process when status failed...
+- [x] Error checking, when downloading Tracks or Albums, like retrying the process when status failed...
+- [ ] Downloading playlists, as of now Spotify Tracks/Albums are currently supported
 
 ## Installation 
 
@@ -90,12 +91,26 @@ import SpottyDL from 'spottydl'
         });
 })();
 
-/* Example Output
-  {
-  status: true,
-  filename: '~/somePath/Never Gonna Give You Up.mp3',
-  id: 'lYBUbBu4W08'
+/* Example Output (Successful)
+[ 
+  { status: 'Success', filename: '~/somePath/Never Gonna Give You Up.mp3' }
+]
+*/
+
+/* Example Output (Failed)
+[ 
+  { 
+    status: 'Failed (stream)', 
+    filename: ~/somePath/Never Gonna Give You Up.mp3, 
+    id: 'lYBUbBu4W08', // videoId from YT-Music
+    tags: {
+      title: 'Never Gonna Give You Up',
+      artist: 'Rick Astley',
+      year: '1987-11-12',
+      ...
+    }
   }
+]
 */
 ```
 
@@ -103,23 +118,60 @@ import SpottyDL from 'spottydl'
 
 ```JS
 (async() => {
-    await SpottyDL.getAlbum("https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT")
+    await SpottyDL.getAlbum("https://open.spotify.com/album/66MRfhZmuTuyGCO1dJZTRB")
         .then(async(results) => {
-            let album = await SpottyDL.downloadAlbum(results)
+            let album = await SpottyDL.downloadAlbum(results, "output/", false)
             console.log(album)
         });
 })();
 
-/* Example Output
+/* Example Output (Successful)
 [
-  {
-  status: true,
-  filename: "./'K.'.mp3",
-  id: 'L4sbDxR22z4'
-  },
-  {...}
+  { status: 'Success', filename: 'output/Crush.mp3' },
+  { status: 'Success', filename: 'output/Sesame Syrup.mp3' }
 ]
 */
+
+/* Example Output (Failed) some tracks failed proceed to use `retryDownload()` method
+[
+  { 
+    status: 'Failed (Stream)', 
+    filename: 'output/Crush.mp3',
+    id: YT-Music id, 
+    tags: {
+      // tags for the track... 
+    }
+  },
+  { status: 'Success', filename: 'output/Sesame Syrup.mp3' }
+]
+*/
+```
+
+#### Retrying a failed download (Album/Track)
+
+```JS
+(async() => {
+    await SpottyDL.getAlbum("https://open.spotify.com/album/66MRfhZmuTuyGCO1dJZTRB")
+        .then(async(results) => {
+            let album = await SpottyDL.downloadAlbum(results, "output/", false)
+            let res = await SpottyDL.retryDownload(album); 
+            console.log(res) // boolean or <Results[]>
+        });
+})();
+
+// Using a while loop until all tracks have no errors (Experimental)
+
+(async() => {
+    await SpottyDL.getAlbum("https://open.spotify.com/album/66MRfhZmuTuyGCO1dJZTRB")
+        .then(async(results) => {
+            let album = await SpottyDL.downloadAlbum(results, "output/", false)
+            let res = await SpottyDL.retryDownload(album); 
+            while(res != true) {
+               res = await SpottyDL.retryDownload(res);
+               console.log(res) // boolean or <Results[]>
+            }
+        });
+})();
 ```
 
 ## Notes
