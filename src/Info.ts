@@ -79,3 +79,53 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
         return `Caught: ${err.name} | ${err.message}`
     }
 }
+
+
+export const getAlbExp = async (url: string = '') => {
+    try {
+        // Check if url is a track URL
+        let spURL = url.split('/')
+        if (spURL[3] != 'album') {
+            throw { name: 'URL Error', message: `'${url}' is not a Spotify Album URL...` }
+        }
+        let properURL = `http://embed.spotify.com/?uri=spotify:${spURL[3]}:${spURL[4]}`
+        let sp = await axios.get(properURL)
+        let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
+        // let tags: Album = {
+        //     name: spData.name,
+        //     artist: spData.artists.map((e: any) => e.name).join(', '),
+        //     year: spData.release_date,
+        //     tracks: [],
+        //     albumCoverURL: spData.images[0].url
+        // }
+        // Search the artist and get their songs
+        await ytm.initialize();
+        let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
+        let albData = await ytm.getAlbum(alb[0].albumId);
+        let sng = await ytm.getArtistSongs(`${alb[0].artists[0].artistId}`);
+
+        // for (let i = 0; i < sng.length; i++){
+        //     for (let k = 0; k < spData.tracks.items.length; k++) {
+        //         if (`${sng[i].name}` == albData.songs[k].name) {
+        //             tags.tracks.push({
+        //                 name: spData.tracks.items[k].name,
+        //                 id: sng[i].videoId,
+        //                 trackNumber: spData.tracks.items[k].track_number
+        //             })
+        //         }
+        //     }
+        // }
+        // console.log(trackNames)
+        let info = sng.map((i: any, n: number) => {
+            if (albData.songs.includes(i.name)){
+                return i
+            }
+        })
+        console.log(info)
+        // return tags;
+    } catch (err: any) {
+        return `Caught: ${err.name} | ${err.message}`
+    }
+}
+
+//Lloyd, I'm Ready To Be Heartbroken

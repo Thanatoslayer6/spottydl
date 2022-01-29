@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { isArray } from 'util'
 import os from 'os'
-export { getAlbum, getTrack } from './Info'
+export { getAlbum, getTrack, getAlbExp } from './Info'
 export { downloadAlbum, downloadTrack, retryDownload } from './Download'
 
 export type Track = {
