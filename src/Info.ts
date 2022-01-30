@@ -91,25 +91,114 @@ export const getAlbExp = async (url: string = '') => {
         let properURL = `http://embed.spotify.com/?uri=spotify:${spURL[3]}:${spURL[4]}`
         let sp = await axios.get(properURL)
         let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
-        /* let tags: Album = { */
-        /*      name: spData.name, */ 
-        /*      artist: spData.artists.map((e: any) => e.name).join(', '), */ 
-        /*      year: spData.release_date, */ 
-        /*      tracks: [], */ 
-        /*      albumCoverURL: spData.images[0].url */ 
-        /*  } */ 
-        // Search the album and get all songs from artist then filter by album
+        let tags: Album = {
+            name: spData.name, 
+            artist: spData.artists.map((e: any) => e.name).join(', '), 
+            year: spData.release_date, 
+            tracks: [], 
+            albumCoverURL: spData.images[0].url 
+        } 
+        // // Search the album and get all songs from artist then filter by album
         await ytm.initialize();
 
         let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
         /* let albData = await ytm.getAlbum(alb[0].albumId); */
         let sng = await ytm.getArtistSongs(`${alb[0].artists[0].artistId}`);
         
-        /* let trackNames = spData.tracks.items.map((i: any) => i.name.toUpperCase()) */
-        /* let data = sng.filter(i => { */
-        /*     return trackNames.indexOf(i.name.toUpperCase()) != -1 */
-        /* }) */
-        /* console.log(data) */
+        // let trackNames = spData.tracks.items.map((i: any) => i.name);
+        // console.log(trackNames)
+        // console.log(spData.tracks.items)
+
+        // get all songs from the album
+        // MAIN WORKS but some errors
+        // let indexes: any = [];
+        // let data = sng.map((i: any) => {
+        //     for (let k = 0; k < spData.tracks.items.length; k++) {
+        //         if (spData.tracks.items[k].name.toUpperCase().indexOf(i.name.toUpperCase()) != -1) {
+        //             if (indexes.includes(k)){
+        //                 continue;
+        //             }
+        //             indexes.push(k)
+        //             return {
+        //                 name: spData.tracks.items[k].name,
+        //                 id: i.videoId,
+        //                 trackNumber: spData.tracks.items[k].track_number,
+        //             }
+        //         }  
+        //     }
+        // })
+        // ALTERNATE WITH ID ISSUE
+        let temp: any = [];
+        let indexes: any = [];
+        for (let i = 0; i < sng.length; i++) {
+            for (let k = 0; k < spData.tracks.items.length; k++) {
+                if (spData.tracks.items[k].name.toUpperCase().indexOf(sng[i].name.toUpperCase()) != -1) {
+                    if (indexes.includes(k)){
+                        continue;
+                    }
+                    indexes.push(k)
+                    temp.push({
+                        name: spData.tracks.items[k].name,
+                        id: sng[i].videoId,
+                        trackNumber: spData.tracks.items[k].track_number,
+                    })
+                }  
+            }
+        }
+
+        // ALTERNATE
+        tags.tracks = temp.sort((a: any, b: any) => {
+            return a.trackNumber - b.trackNumber
+        })
+        // MAIN
+        // tags.tracks = data.sort((a: any, b: any) => {
+        //     return a.trackNumber - b.trackNumber
+        // })
+       
+        
+        // let filtered = data.map(i => {
+        // })
+        // console.log(filtered)
+
+        // // INORDERED
+        // let filteredArray: any = sng.map((i: any) => {
+        //     if (trackNames.includes(i.name.toUpperCase())) {
+        //         return {
+        //             name: i.name,
+        //             id: i.videoId,
+        //             duration: i.duration,
+        //         }
+        //     }
+        // })
+        // console.log(filteredArray)
+        // SORT TEST
+        // let sorted: any = spData.tracks.items.map((i: any, n: number) => {
+        //     if (i.name.toUpperCase() == filteredArray[n].name.toUpperCase()) {
+        //         return filteredArray[n]
+        //     }
+        // })
+        // console.log(sorted)
+        // console.log(filteredArray)
+        // Validate every duration
+        // for (let i = 0; i < spData.tracks.items.length; i++) {
+        //     if (Math.trunc(spData.tracks.items[i].duration_ms / 1000) == filteredArray[i].duration){
+        //         filteredArray[i].name = spData.tracks.items[i].name
+        //         filteredArray[i].trackNumber = spData.tracks.items[i].track_number
+        //     } 
+        // }
+    
+        // console.log(filteredArray)
+        
+        // turn them in order and change name using spotify
+        // console.log(data)
+        // let info = data.map((i: any, n:number) => {
+        //     return {
+        //         name: trackNames[n],
+        //         id: i.videoId,
+        //         duration: i.duration
+        //     }
+        // })
+        // console.log(info) 
         /* spData.tracks.items.forEach((i: any) => { */
         /*     tags.tracks.push({ */
         /*         name: i.name, */
@@ -130,33 +219,42 @@ export const getAlbExp = async (url: string = '') => {
         /*         } */
         /*     } */
         /* } */
+        // EXPERIMENTAL
         // First we push the trackNumber and the names no wait actually lets just place it first in a var
-        let stuffer = spData.tracks.items.map((i: any) => {
-            return {
-                name: i.name,
-                trackNumber: i.track_number
-            }
-        }) 
-        console.log(stuffer)
-        /* for (let i = 0; i < sng.length; i++) { */
-            /* stuffer.forEach((k:any, n: number) => { */
-                /* if (k.name.toUpperCase() == sng[i].name.toUpperCase()){ */
-                /*     stuffer[n].id = sng[i].videoId */
-                /* } */
-            /* }) */                        
-        /* } */
+        // let stuffer = spData.tracks.items.map((i: any) => {
+        //     return {
+        //         name: i.name,
+        //         trackNumber: i.track_number
+        //     }
+        // }) 
+        // console.log(stuffer)
+        // /* for (let i = 0; i < sng.length; i++) { */
+        //     /* stuffer.forEach((k:any, n: number) => { */
+        //         /* if (k.name.toUpperCase() == sng[i].name.toUpperCase()){ */
+        //         /*     stuffer[n].id = sng[i].videoId */
+        //         /* } */
+        //     /* }) */                        
+        // /* } */
+        // for (let k = 0; k < stuffer.length; k++) {
+        //     for (let i = 0; i < sng.length; i++) {
+        //         if (stuffer[k].name.toUpperCase().indexOf(sng[i].name.toUpperCase()) != -1) {
+        //             stuffer[k].id = sng[i].videoId
+        //         } 
+        //     }
+        // }
+        // let k = 0;
+        // sng.forEach((i: any) => {
+        //     if (trackNames.includes(i.name.toUpperCase())) {
+        //         stuffer[k].id = i.videoId
+        //         k++;
+        //     }
+        // })
         
-        for (let k = 0; k < stuffer.length; k++) {
-            for (let i = 0; i < sng.length; i++) {
-                if (stuffer[k].name.toUpperCase().indexOf(sng[i].name.toUpperCase()) != -1) {
-                    stuffer[k].id = sng[i].videoId
-                }
-            }
-        }
-        console.log(stuffer)
+        // console.log(stuffer)
+        // END
 
 
-        /* return tags; */
+        return tags;
     } catch (err: any) {
         return `Caught: ${err.name} | ${err.message}`
     }
