@@ -91,41 +91,73 @@ export const getAlbExp = async (url: string = '') => {
         let properURL = `http://embed.spotify.com/?uri=spotify:${spURL[3]}:${spURL[4]}`
         let sp = await axios.get(properURL)
         let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
-        // let tags: Album = {
-        //     name: spData.name,
-        //     artist: spData.artists.map((e: any) => e.name).join(', '),
-        //     year: spData.release_date,
-        //     tracks: [],
-        //     albumCoverURL: spData.images[0].url
-        // }
-        // Search the artist and get their songs
+        /* let tags: Album = { */
+        /*      name: spData.name, */ 
+        /*      artist: spData.artists.map((e: any) => e.name).join(', '), */ 
+        /*      year: spData.release_date, */ 
+        /*      tracks: [], */ 
+        /*      albumCoverURL: spData.images[0].url */ 
+        /*  } */ 
+        // Search the album and get all songs from artist then filter by album
         await ytm.initialize();
-        let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
-        let albData = await ytm.getAlbum(alb[0].albumId);
-        let sng = await ytm.getArtistSongs(`${alb[0].artists[0].artistId}`);
 
-        // for (let i = 0; i < sng.length; i++){
-        //     for (let k = 0; k < spData.tracks.items.length; k++) {
-        //         if (`${sng[i].name}` == albData.songs[k].name) {
-        //             tags.tracks.push({
-        //                 name: spData.tracks.items[k].name,
-        //                 id: sng[i].videoId,
-        //                 trackNumber: spData.tracks.items[k].track_number
-        //             })
-        //         }
-        //     }
-        // }
-        // console.log(trackNames)
-        let info = sng.map((i: any, n: number) => {
-            if (albData.songs.includes(i.name)){
-                return i
+        let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
+        /* let albData = await ytm.getAlbum(alb[0].albumId); */
+        let sng = await ytm.getArtistSongs(`${alb[0].artists[0].artistId}`);
+        
+        /* let trackNames = spData.tracks.items.map((i: any) => i.name.toUpperCase()) */
+        /* let data = sng.filter(i => { */
+        /*     return trackNames.indexOf(i.name.toUpperCase()) != -1 */
+        /* }) */
+        /* console.log(data) */
+        /* spData.tracks.items.forEach((i: any) => { */
+        /*     tags.tracks.push({ */
+        /*         name: i.name, */
+        /*         id: k.videoId, */
+        /*         trackNumber: i.track_number */
+        /*     }) */
+        /* }) */
+
+        /* console.log(data) */
+        /* for (let k = 0; k < spData.tracks.items.length; k++) { */
+        /*     for (let i = 0; i < sng.length; i++){ */
+        /*         if (sng[i].name.toUpperCase() == spData.tracks.items[k].name.toUpperCase()) { */
+        /*             tags.tracks.push({ */
+        /*                 name: spData.tracks.items[k].name, */
+        /*                 id: sng[i].videoId, */
+        /*                 trackNumber: spData.tracks.items[k].track_number, */
+        /*             }) */
+        /*         } */
+        /*     } */
+        /* } */
+        // First we push the trackNumber and the names no wait actually lets just place it first in a var
+        let stuffer = spData.tracks.items.map((i: any) => {
+            return {
+                name: i.name,
+                trackNumber: i.track_number
             }
-        })
-        console.log(info)
-        // return tags;
+        }) 
+        console.log(stuffer)
+        /* for (let i = 0; i < sng.length; i++) { */
+            /* stuffer.forEach((k:any, n: number) => { */
+                /* if (k.name.toUpperCase() == sng[i].name.toUpperCase()){ */
+                /*     stuffer[n].id = sng[i].videoId */
+                /* } */
+            /* }) */                        
+        /* } */
+        
+        for (let k = 0; k < stuffer.length; k++) {
+            for (let i = 0; i < sng.length; i++) {
+                if (stuffer[k].name.toUpperCase().indexOf(sng[i].name.toUpperCase()) != -1) {
+                    stuffer[k].id = sng[i].videoId
+                }
+            }
+        }
+        console.log(stuffer)
+
+
+        /* return tags; */
     } catch (err: any) {
         return `Caught: ${err.name} | ${err.message}`
     }
 }
-
-//Lloyd, I'm Ready To Be Heartbroken
