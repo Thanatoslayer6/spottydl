@@ -80,7 +80,7 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
     }
 }
 
-
+// UNDER CONSTRUCTION THIS METHOD IS NOT THE BEST SOLUTION
 export const getAlbExp = async (url: string = '') => {
     try {
         // Check if url is a track URL
@@ -102,16 +102,19 @@ export const getAlbExp = async (url: string = '') => {
         await ytm.initialize();
 
         let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
-        /* let albData = await ytm.getAlbum(alb[0].albumId); */
+        // let albData = await ytm.getAlbum(alb[0].albumId);
         let sng = await ytm.getArtistSongs(`${alb[0].artists[0].artistId}`);
         
+        // TEST get the playlist ID
+        console.log(alb[0].playlistId)
+
         // let trackNames = spData.tracks.items.map((i: any) => i.name);
         // console.log(trackNames)
         // console.log(spData.tracks.items)
 
         // get all songs from the album
         // MAIN WORKS but some errors
-        // let indexes: any = [];
+        let indexes: any = [];
         // let data = sng.map((i: any) => {
         //     for (let k = 0; k < spData.tracks.items.length; k++) {
         //         if (spData.tracks.items[k].name.toUpperCase().indexOf(i.name.toUpperCase()) != -1) {
@@ -127,12 +130,10 @@ export const getAlbExp = async (url: string = '') => {
         //         }  
         //     }
         // })
-        // ALTERNATE WITH ID ISSUE
         let temp: any = [];
-        let indexes: any = [];
         for (let i = 0; i < sng.length; i++) {
             for (let k = 0; k < spData.tracks.items.length; k++) {
-                if (spData.tracks.items[k].name.toUpperCase().indexOf(sng[i].name.toUpperCase()) != -1) {
+                if (spData.tracks.items[k].name.toUpperCase().indexOf(sng[i].name.toUpperCase()) != -1 ) {
                     if (indexes.includes(k)){
                         continue;
                     }
@@ -142,11 +143,12 @@ export const getAlbExp = async (url: string = '') => {
                         id: sng[i].videoId,
                         trackNumber: spData.tracks.items[k].track_number,
                     })
+                    break;
                 }  
             }
         }
 
-        // ALTERNATE
+        // Sort the tracks in order by their trackNumber
         tags.tracks = temp.sort((a: any, b: any) => {
             return a.trackNumber - b.trackNumber
         })
@@ -253,9 +255,24 @@ export const getAlbExp = async (url: string = '') => {
         // console.log(stuffer)
         // END
 
-
         return tags;
     } catch (err: any) {
         return `Caught: ${err.name} | ${err.message}`
     }
 }
+
+export const _getAlbExp = async (id: string = '') => {
+    let properUrl = `https://youtube.com/playlist?list=${id}`
+    let resp = await axios.get(properUrl);
+    let yt = parse(resp.data)[1].children[1].children.filter((i: any)=> {
+        return i.tagName = 'script';
+    })[15].children[0].content;
+    // USE SUBSTR
+    let ytdata = JSON.parse(yt.substr(20, yt.length - 1 ))
+    // console.log(ytdata.length)
+    //
+    console.log(ytdata)
+    console.log("~~~~~~~~~~~~~~~~~~~")
+    // console.log(ytdata[15])
+}
+
