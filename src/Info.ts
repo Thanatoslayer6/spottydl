@@ -5,11 +5,10 @@ import YTMusic from 'ytmusic-api'
 const { parse } = require('himalaya')
 const ytm = new YTMusic()
 
-
 // Private methods
-const get_playlist = async (playlistId: string) => {
+const get_album_playlist = async (playlistId: string) => {
     // Get the Track ID for every track by scraping from an unlisted Youtube playlist
-    let properUrl = `https://youtube.com/playlist?list=${playlistId}`
+    let properUrl = `https://m.youtube.com/playlist?list=${playlistId}`
     let resp = await axios.get(properUrl);
 
     // Scrape json inside script tag
@@ -63,7 +62,6 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
     try {
         let linkData = checkLinkType(url);
         let properURL = getProperURL(linkData.id, linkData.type);
-        console.log(properURL);
         let sp = await axios.get(properURL)
         let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
         let tags: Album = {
@@ -77,13 +75,13 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
         // Search the album
         await ytm.initialize();
         let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
-        let yt_tracks: any | undefined = await get_playlist(alb[0].playlistId); // Get track ids from youtube
+        let yt_tracks: any | undefined = await get_album_playlist(alb[0].playlistId); // Get track ids from youtube
 
         spData.tracks.items.forEach((i: any, n: number) => {
             tags.tracks.push({
                 name: i.name,
                 id: yt_tracks[n].playlistVideoRenderer.videoId,
-                trackNumber: i.track_number
+                trackNumber: i.track_number,
             })
         })
 

@@ -9,6 +9,7 @@ However, this **requires [ffmpeg](https://ffmpeg.org/download.html)** to be inst
 - [x] **Automatic tagging of .mp3 files** using [Node-ID3](https://github.com/Zazama/node-id3) includes _Year, Artist, Album, Title, and Art Cover_
 - [x] **Simple and easy to use**, contains only 4 usable methods 🤔 I do need some help optimizing some parts
 - [x] Error checking, when downloading Tracks or Albums, like retrying the process when status failed...
+- [ ] Adding more specific tags like: Total # of tracks, Disc #, and such...
 - [ ] Downloading playlists, as of now Spotify Tracks/Albums are currently supported
 
 ## Installation 

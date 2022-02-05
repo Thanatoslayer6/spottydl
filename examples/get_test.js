@@ -9,6 +9,6 @@ let kn = "https://open.spotify.com/album/4UMXvtXMP0JW3jRsm8jvPd";
 ;(async() => {
     // let type = sp.checkLinkType(properURL);
     // console.log(type)
-    let alb = await sp.getAlbum(yc);
+    let alb = await sp.getAlbum(tnd);
     console.log(alb)
 })()
