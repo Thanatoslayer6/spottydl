@@ -30,7 +30,7 @@
   "author": "Thanatoslayer6",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.25.0",
+    "axios": "^0.26.0",
     "fluent-ffmpeg": "^2.1.2",
     "himalaya": "^1.1.0",
     "node-id3": "^0.2.3",
