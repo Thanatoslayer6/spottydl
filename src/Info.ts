@@ -12,7 +12,7 @@ const get_album_playlist = async (playlistId: string) => {
     let resp = await axios.get(properUrl);
 
     // Scrape json inside script tag
-    let yt = parse(resp.data)[1].children[1].children[15].children[0].content
+    let yt = parse(resp.data)[1].children[1].children[16].children[0].content // 16th element inside body
     let ytdata = JSON.parse(yt.slice(20, yt.length - 1)) // Parse json
     return ytdata.contents.twoColumnBrowseResultsRenderer.tabs[0]
                 .tabRenderer.content.sectionListRenderer.contents[0]
@@ -44,7 +44,7 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
         }
 
         await ytm.initialize()
-        let trk = await ytm.search(`${tags.title} - ${tags.artist}`, 'SONG')
+        let trk = await ytm.searchSongs(`${tags.title} - ${tags.artist}`);
         tags.id = trk[0].videoId
 
         return tags
@@ -74,9 +74,8 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
 
         // Search the album
         await ytm.initialize();
-        let alb = await ytm.search(`${spData.artists[0].name} - ${spData.name}`, "ALBUM")
+        let alb = await ytm.searchAlbums(`${spData.artists[0].name} - ${spData.name}`)
         let yt_tracks: any | undefined = await get_album_playlist(alb[0].playlistId); // Get track ids from youtube
-
         spData.tracks.items.forEach((i: any, n: number) => {
             tags.tracks.push({
                 name: i.name,
