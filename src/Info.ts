@@ -2,22 +2,22 @@ import { Album, Track } from './index'
 import { checkLinkType, getProperURL } from './Util'
 import axios from 'axios'
 import YTMusic from 'ytmusic-api'
-const { parse } = require('himalaya')
 const ytm = new YTMusic()
 
 // Private methods
 const get_album_playlist = async (playlistId: string) => {
     // Get the Track ID for every track by scraping from an unlisted Youtube playlist
     let properUrl = `https://m.youtube.com/playlist?list=${playlistId}`
-    let resp = await axios.get(properUrl);
+    let resp = await axios.get(properUrl)
 
     // Scrape json inside script tag
-    let yt = parse(resp.data)[1].children[1].children[16].children[0].content // 16th element inside body
-    let ytdata = JSON.parse(yt.slice(20, yt.length - 1)) // Parse json
-    return ytdata.contents.twoColumnBrowseResultsRenderer.tabs[0]
-                .tabRenderer.content.sectionListRenderer.contents[0]
-                .itemSectionRenderer.contents[0]
-                .playlistVideoListRenderer.contents
+    let ytInitialData = JSON.parse(
+        /(?:window\["ytInitialData"\])|(?:ytInitialData) =.*?({.*?});/s.exec(resp.data)?.[1] || '{}'
+    )
+    let listData =
+        ytInitialData.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer
+            .contents[0].itemSectionRenderer.contents[0].playlistVideoListRenderer
+    return listData.contents
 }
 
 /**
@@ -27,12 +27,11 @@ const get_album_playlist = async (playlistId: string) => {
  */
 export const getTrack = async (url: string = ''): Promise<Track | string> => {
     try {
-        let linkData = checkLinkType(url);
-        let properURL = getProperURL(linkData.id, linkData.type);
+        let linkData = checkLinkType(url)
+        let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
-
-        // Return tags
+        let info: any = /<script id="resource" type="application\/json">(.*?)<\/script>/s.exec(sp.data)
+        let spData = JSON.parse(decodeURIComponent(info[1])) // info[1] matches the data to decode
         let tags: Track = {
             title: spData.name,
             artist: spData.artists.map((i: any) => i.name).join(', '),
@@ -44,7 +43,7 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
         }
 
         await ytm.initialize()
-        let trk = await ytm.searchSongs(`${tags.title} - ${tags.artist}`);
+        let trk = await ytm.searchSongs(`${tags.title} - ${tags.artist}`)
         tags.id = trk[0].videoId
 
         return tags
@@ -60,31 +59,32 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
  */
 export const getAlbum = async (url: string = ''): Promise<Album | string> => {
     try {
-        let linkData = checkLinkType(url);
-        let properURL = getProperURL(linkData.id, linkData.type);
+        let linkData = checkLinkType(url)
+        let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let spData = JSON.parse(decodeURIComponent(parse(sp.data)[2].children[3].children[3].children[0].content))
+        let info: any = /<script id="resource" type="application\/json">(.*?)<\/script>/s.exec(sp.data)
+        let spData = JSON.parse(decodeURIComponent(info[1]))
         let tags: Album = {
-            name: spData.name, 
-            artist: spData.artists.map((e: any) => e.name).join(', '), 
-            year: spData.release_date, 
-            tracks: [], 
-            albumCoverURL: spData.images[0].url 
-        } 
+            name: spData.name,
+            artist: spData.artists.map((e: any) => e.name).join(', '),
+            year: spData.release_date,
+            tracks: [],
+            albumCoverURL: spData.images[0].url
+        }
 
         // Search the album
-        await ytm.initialize();
+        await ytm.initialize()
         let alb = await ytm.searchAlbums(`${spData.artists[0].name} - ${spData.name}`)
-        let yt_tracks: any | undefined = await get_album_playlist(alb[0].playlistId); // Get track ids from youtube
+        let yt_tracks: any | undefined = await get_album_playlist(alb[0].playlistId) // Get track ids from youtube
         spData.tracks.items.forEach((i: any, n: number) => {
             tags.tracks.push({
                 name: i.name,
                 id: yt_tracks[n].playlistVideoRenderer.videoId,
-                trackNumber: i.track_number,
+                trackNumber: i.track_number
             })
         })
 
-        return tags;
+        return tags
     } catch (err: any) {
         return `Caught: ${err.name} | ${err.message}`
     }

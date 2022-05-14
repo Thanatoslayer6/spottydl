@@ -26,5 +26,3 @@ export interface Results {
     id?: string
     tags?: object
 }
-
-

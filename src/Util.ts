@@ -4,9 +4,10 @@ import { isArray } from 'util'
 import os from 'os'
 
 export const checkLinkType = (link: string) => {
-    const reg = /^(?:spotify:|(?:https?:\/\/(?:open|play|embed)\.spotify\.com\/))(?:embed|\?uri=spotify:|embed\?uri=spotify:)?\/?(album|track)(?::|\/)((?:[0-9a-zA-Z]){22})/;
-    const match = link.match(reg);
-    if (match){
+    const reg =
+        /^(?:spotify:|(?:https?:\/\/(?:open|play|embed)\.spotify\.com\/))(?:embed|\?uri=spotify:|embed\?uri=spotify:)?\/?(album|track)(?::|\/)((?:[0-9a-zA-Z]){22})/
+    const match = link.match(reg)
+    if (match) {
         return {
             type: match[1],
             id: match[2]
@@ -17,7 +18,7 @@ export const checkLinkType = (link: string) => {
 }
 
 export const getProperURL = (id: string, type: string) => {
-    return `https://embed.spotify.com/?uri=spotify:${type}:${id}`;
+    return `https://embed.spotify.com/?uri=spotify:${type}:${id}`
 }
 
 /**
