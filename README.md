@@ -18,9 +18,9 @@ _Make sure you have ffmpeg installed on your system preferably version >= 4.0_
 
 ```sh
 # NPM
-npm i spotifydl-core
+npm i spottydl
 # Yarn
-yarn add spotifydl-core
+yarn add spottydl
 ```
 
 ## Usage
