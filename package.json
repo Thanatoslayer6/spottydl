@@ -30,7 +30,7 @@
   "author": "Thanatoslayer6",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "node-id3": "^0.2.3",
     "ytdl-core": "^4.10.1",
