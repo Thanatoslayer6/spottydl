@@ -30,17 +30,17 @@
   "author": "Thanatoslayer6",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.2.1",
     "fluent-ffmpeg": "^2.1.2",
-    "node-id3": "^0.2.3",
-    "ytdl-core": "^4.10.1",
-    "ytmusic-api": "^3.1.0"
+    "node-id3": "^0.2.5",
+    "ytdl-core": "^4.11.2",
+    "ytmusic-api": "^4.0.0"
   },
   "devDependencies": {
     "@types/fluent-ffmpeg": "^2.1.20",
-    "@types/node": "^18.0.0",
-    "prettier": "^2.7.1",
-    "typedoc": "^0.23.2",
-    "typescript": "^4.7.4"
+    "@types/node": "^18.11.18",
+    "prettier": "^2.8.1",
+    "typedoc": "^0.23.23",
+    "typescript": "^4.9.4"
   }
 }
