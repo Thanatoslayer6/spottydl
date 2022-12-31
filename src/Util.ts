@@ -18,7 +18,9 @@ export const checkLinkType = (link: string) => {
 }
 
 export const getProperURL = (id: string, type: string) => {
-    return `https://embed.spotify.com/?uri=spotify:${type}:${id}`
+    // UPDATE: Embed link doesn't allow scraping anymore due to new Spotify UI change
+    // return `https://embed.spotify.com/?uri=spotify:${type}:${id}`
+    return `https://open.spotify.com/${type}/${id}`
 }
 
 /**

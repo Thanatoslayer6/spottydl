@@ -9,6 +9,7 @@ const get_album_playlist = async (playlistId: string) => {
     // Get the Track ID for every track by scraping from an unlisted Youtube playlist
     let properUrl = `https://m.youtube.com/playlist?list=${playlistId}`
     let resp = await axios.get(properUrl)
+    // let resp = await axios.get(properUrl, {headers: { 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; rv:100.0) Gecko/20100101 Firefox/100.0'  }})
 
     // Scrape json inside script tag
     let ytInitialData = JSON.parse(
@@ -30,21 +31,30 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
         let linkData = checkLinkType(url)
         let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let info: any = /<script id="resource" type="application\/json">(.*?)<\/script>/s.exec(sp.data)
-        let spData = JSON.parse(decodeURIComponent(info[1])) // info[1] matches the data to decode
-        let tags: Track = {
-            title: spData.name,
-            artist: spData.artists.map((i: any) => i.name).join(', '),
-            year: spData.album.release_date,
-            album: spData.album.name,
-            id: 'ID',
-            albumCoverURL: spData.album.images[0].url,
-            trackNumber: spData.track_number
-        }
+        let info: any = /<script id="initial-state" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
 
+        // Decode the base64 data, then parse as json... info[1] matches the encoded data
+        let spData = JSON.parse(Buffer.from(decodeURIComponent(info[1]), 'base64').toString('utf8'))
+        // Assign necessary items to a variable
+        let spTrk = spData.entities.items[`spotify:${linkData.type}:${linkData.id}`]
+        let tags: Track = {
+            title: spTrk.name,
+            // artist: tempartist,
+            artist: spTrk.otherArtists.items.length == 0 ? spTrk.firstArtist.items[0].profile.name : spTrk.firstArtist.items[0].profile.name + ', ' + spTrk.otherArtists.items.map((i: any) => i?.profile?.name).join(', '),
+            // artist: trk.data.entity.artists.map((i: any) => i.name).join(', '),
+            // year: spData.data.entity.releaseDate,
+            year: `${spTrk.albumOfTrack.date.year}-${spTrk.albumOfTrack.date.month}-${spTrk.albumOfTrack.date.day}`,
+            // album: spData.album.name || undefined,
+            album: spTrk.albumOfTrack.name,
+            id: 'ID',
+            // albumCoverURL: spData.data.entity.coverArt.sources[0].url,
+            albumCoverURL: spTrk.albumOfTrack.coverArt.sources[0].url,
+            //trackNumber: spData.track_number || undefined
+            trackNumber: spTrk.trackNumber
+        }
         await ytm.initialize()
-        let trk = await ytm.searchSongs(`${tags.title} - ${tags.artist}`)
-        tags.id = trk[0].videoId
+        let yt_trk = await ytm.searchSongs(`${tags.title} - ${tags.artist}`)
+        tags.id = yt_trk[0].videoId
 
         return tags
     } catch (err: any) {
@@ -62,25 +72,27 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
         let linkData = checkLinkType(url)
         let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let info: any = /<script id="resource" type="application\/json">(.*?)<\/script>/s.exec(sp.data)
-        let spData = JSON.parse(decodeURIComponent(info[1]))
+        let info: any = /<script id="initial-state" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
+        let spData = JSON.parse(Buffer.from(decodeURIComponent(info[1]), 'base64').toString('utf8'))
+        // Assign necessary items to a variable
+        let spTrk = spData.entities.items[`spotify:${linkData.type}:${linkData.id}`]
         let tags: Album = {
-            name: spData.name,
-            artist: spData.artists.map((e: any) => e.name).join(', '),
-            year: spData.release_date,
+            name: spTrk.name,
+            artist: spTrk.artists.items.map((e: any) => e.profile.name).join(', '),
+            year: `${spTrk.date.year}-${spTrk.date.month}-${spTrk.date.day}`,
             tracks: [],
-            albumCoverURL: spData.images[0].url
+            albumCoverURL: spTrk.coverArt.sources[0].url
         }
 
         // Search the album
         await ytm.initialize()
-        let alb = await ytm.searchAlbums(`${spData.artists[0].name} - ${spData.name}`)
+        let alb = await ytm.searchAlbums(`${tags.artist} - ${tags.name}`)
         let yt_tracks: any | undefined = await get_album_playlist(alb[0].playlistId) // Get track ids from youtube
-        spData.tracks.items.forEach((i: any, n: number) => {
+        spTrk.tracks.items.forEach((i: any, n: number) => {
             tags.tracks.push({
-                name: i.name,
+                name: i.track.name,
                 id: yt_tracks[n].playlistVideoRenderer.videoId,
-                trackNumber: i.track_number
+                trackNumber: i.track.trackNumber
             })
         })
 
