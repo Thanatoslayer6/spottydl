@@ -1,5 +1,5 @@
 export { getAlbum, getTrack, getPlaylist } from './Info'
-export { downloadAlbum, downloadTrack, retryDownload } from './Download'
+export { downloadAlbum, downloadTrack, downloadPlaylist, retryDownload } from './Download'
 export { checkPath, checkType } from './Util'
 
 export type Track = {

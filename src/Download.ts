@@ -182,36 +182,59 @@ export const downloadAlbum = async (
     }
 }
 
-// export const downloadPlaylist = async (
-//     obj: Playlist,
-//     outputPath: string = './',
-//     sync: boolean = true
-// ): Promise<Results[] | string> => {
-//     try {
-//         if (checkType(obj) != 'Playlist') {
-//             throw Error('obj passed is not of type <Playlist>')
-//         }
-//         // let albCover = await axios.get(obj.albumCoverURL, { responseType: 'arraybuffer' })
-//         // let tags: any = {
-//         //     artist: obj.artist,
-//         //     album: obj.name,
-//         //     year: obj.year,
-//         //     image: {
-//         //         imageBuffer: Buffer.from(albCover.data, 'utf-8')
-//         //     }
-//         // }
-//         let oPath = checkPath(outputPath)
-//         // if (sync) {
-//         //     return await dl_album_normal(obj, oPath, tags)
-//         // } else {
-//         //     return await dl_album_fast(obj, oPath, tags)
-//         // }
-//         // return await dl_
-//         return await dl_playlist_normal(obj, oPath, tags);
-//     } catch (err: any) {
-//         return `Caught: ${err}`
-//     }
-// }
+export const downloadPlaylist = async (
+    obj: Playlist,
+    outputPath: string = './',
+    sync: boolean = true
+): Promise<Results[] | string> => {
+    try {
+        let Results: any = [];
+        if (checkType(obj) != 'Playlist') {
+            throw Error('obj passed is not of type <Playlist>')
+        }
+
+        let oPath = checkPath(outputPath)
+        for await (let res of obj.tracks) {
+            let filename = `${oPath}${res.title}.mp3`
+            let dlt = await dl_track(res.id, filename)
+            let albCover = await axios.get(res.albumCoverURL, { responseType: 'arraybuffer' })
+            let tags: any = {
+                title: res.title,
+                artist: res.artist,
+                album: res.album,
+                // year: 0, // Year tag doesn't exist when scraping
+                trackNumber: res.trackNumber,
+                image: {
+                    imageBuffer: Buffer.from(albCover.data, 'utf-8')
+                }
+            }
+            if (dlt) {
+                let tagStatus = NodeID3.update(tags, filename)
+                if (tagStatus) {
+                    console.log(`Finished: ${filename}`)
+                    Results.push({ status: 'Success', filename: filename })
+                } else {
+                    console.log(`Failed: ${filename} (tags)`)
+                    Results.push({ status: 'Failed (tags)', filename: filename, tags: tags })
+                }
+            } else {
+                console.log(`Failed: ${filename} (stream)`)
+                Results.push({ status: 'Failed (stream)', filename: filename, id: res.id, tags: tags })
+            }
+        }
+
+        return Results;
+        // if (sync) {
+        //     return await dl_album_normal(obj, oPath, tags)
+        // } else {
+        //     return await dl_album_fast(obj, oPath, tags)
+        // }
+        // return await dl_
+        // return await dl_playlist_normal(obj, oPath, tags);
+    } catch (err: any) {
+        return `Caught: ${err}`
+    }
+}
 
 /**
  * Retries the download process if there are errors. Only use this after `downloadTrack()` or `downloadAlbum()` methods

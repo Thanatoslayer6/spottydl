@@ -25,15 +25,15 @@ export const getProperURL = (id: string, type: string) => {
 
 /**
  * Check the type of the object, can be of type <Track>, <Album> or <Results[]>
- * @param {Track|Album|Results[]} ob An object, can be type <Track>, <Album> or <Results[]>
- * @returns {string} "Track" | "Album" | "Results[]" | "None"
+ * @param {Track|Album|Playlist|Results[]} ob An object, can be type <Track>, <Album> or <Results[]>
+ * @returns {string} "Track" | "Album" | "Playlist" | "Results[]" | "None"
  */
 export const checkType = (ob: Track | Album | Playlist | Results[]): 'Track' | 'Album' | 'Playlist' | 'Results[]' | 'None' => {
     if ('title' in ob && 'trackNumber' in ob) {
         return 'Track'
-    } else if ('name' in ob && 'tracks' in ob) {
+    } else if ('name' in ob && 'tracks' in ob && 'albumCoverURL' in ob) {
         return 'Album'
-    } else if ('name' in ob && 'owner' in ob) {
+    } else if ('name' in ob && 'owner' in ob && 'playlistCoverURL' in ob) {
         return 'Playlist'
     } else if ('status' in ob[0] && 'filename' in ob[0] && isArray(ob) == true) {
         return 'Results[]'
