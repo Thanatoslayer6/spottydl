@@ -44,28 +44,6 @@ const dl_album_normal = async (obj: Album, oPath: string, tags: any): Promise<Re
     return Results
 }
 
-// const dl_playlist_normal = async (obj: Playlist, oPath: string, tags: any): Promise<Results[]> => {
-//     let Results: any = [];
-//     for await (let res of obj.tracks) {
-//         let filename = `${oPath}${res.title}.mp3`
-//         let dlt = await dl_track(res.id, filename)
-//         if (dlt) {
-//             let tagStatus = NodeID3.update(tags, filename)
-//             if (tagStatus) {
-//                 console.log(`Finished: ${filename}`)
-//                 Results.push({ status: 'Success', filename: filename })
-//             } else {
-//                 console.log(`Failed: ${filename} (tags)`)
-//                 Results.push({ status: 'Failed (tags)', filename: filename, tags: tags })
-//             }
-//         } else {
-//             console.log(`Failed: ${filename} (stream)`)
-//             Results.push({ status: 'Failed (stream)', filename: filename, id: res.id, tags: tags })
-//         }
-//     }
-//     return Results;
-// } 
-
 const dl_album_fast = async (obj: Album, oPath: string, tags: any): Promise<Results[]> => {
     let Results: any = []
     let i: number = 0 // Variable for specifying the index of the loop
@@ -224,13 +202,6 @@ export const downloadPlaylist = async (
         }
 
         return Results;
-        // if (sync) {
-        //     return await dl_album_normal(obj, oPath, tags)
-        // } else {
-        //     return await dl_album_fast(obj, oPath, tags)
-        // }
-        // return await dl_
-        // return await dl_playlist_normal(obj, oPath, tags);
     } catch (err: any) {
         return `Caught: ${err}`
     }
