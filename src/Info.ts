@@ -1,4 +1,4 @@
-import { Album, Track } from './index'
+import { Album, Track, Playlist } from './index'
 import { checkLinkType, getProperURL } from './Util'
 import axios from 'axios'
 import YTMusic from 'ytmusic-api'
@@ -96,6 +96,67 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
             })
         })
 
+        return tags
+    } catch (err: any) {
+        return `Caught: ${err.name} | ${err.message}`
+    }
+}
+
+/**
+ * Get the Playlist details of the given Spotify Playlist URL
+ * @param {string} url Album URL ex `https://open.spotify.com/playlist/...`
+ * @returns {Playlist} <Playlist> if success, `string` if failed
+ */
+export const getPlaylist = async (url: string = ''): Promise<Playlist | string> => {
+    try {
+        let linkData = checkLinkType(url)
+        let properURL = getProperURL(linkData.id, linkData.type)
+        let sp = await axios.get(properURL)
+        let info: any = /<script id="initial-state" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
+        let spData = JSON.parse(Buffer.from(decodeURIComponent(info[1]), 'base64').toString('utf8'))
+        // Assign necessary items to a variable
+        let spPlaylist = spData.entities.items[`spotify:${linkData.type}:${linkData.id}`]
+        // Initialize YTMusic
+        await ytm.initialize()
+        let tags: Playlist = {
+            name: spPlaylist.name,
+            owner: spPlaylist.ownerV2.data.name,
+            description: spPlaylist?.description,
+            followerCount: spPlaylist.followers,
+            trackCount: spPlaylist.content.totalCount,
+            tracks: spPlaylist.content.items.map(async(trk: any) => {
+                let trackTitle = trk.item.data.name
+                let trackArtists = trk.item.data.artists.items.map((i: any) => i.profile.name).join(', ')
+                let yt_trk = await ytm.searchSongs(`${trackTitle} - ${trackArtists}`)
+                // trk.id = yt_trk[0].videoId
+                return {
+                    title: trackTitle,
+                    artist: trackArtists,
+                    // artist: trk.item.data.artists.items.map((i: any) => i.profile.name).join(', '),
+                    // artist: trk.otherArtists.items.length == 0 ? spTrk.firstArtist.items[0].profile.name : spTrk.firstArtist.items[0].profile.name + ', ' + spTrk.otherArtists.items.map((i: any) => i?.profile?.name).join(', '),
+                    // year: `${spTrk.albumOfTrack.date.year}-${spTrk.albumOfTrack.date.month}-${spTrk.albumOfTrack.date.day}`,
+                    // album: spData.album.name || undefined,
+                    album: trk.item.data.albumOfTrack.name,
+                    id: yt_trk[0].videoId,
+                    // albumCoverURL: spData.data.entity.coverArt.sources[0].url,
+                    albumCoverURL: trk.item.data.albumOfTrack.coverArt.sources[0].url,
+                    //trackNumber: spData.track_number || undefined
+                    trackNumber: trk.item.data.trackNumber
+                }
+            }),
+            // artist: spTrk.artists.items.map((e: any) => e.profile.name).join(', '),
+            // year: `${spTrk.date.year}-${spTrk.date.month}-${spTrk.date.day}`,
+            // tracks: [],
+            playlistCoverURL: spPlaylist.images.items[0].sources[0].url
+        }
+        // Search the tracks from youtube concurrently
+        await Promise.all(tags.tracks).then(items => {
+            tags.tracks = items; 
+        })
+        // for await (let trk of tags.tracks) {
+        //     let yt_trk = await ytm.searchSongs(`${trk.title} - ${trk.artist}`)
+        //     trk.id = yt_trk[0].videoId
+        // }
         return tags
     } catch (err: any) {
         return `Caught: ${err.name} | ${err.message}`

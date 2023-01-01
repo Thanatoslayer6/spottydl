@@ -1,11 +1,11 @@
-import { Track, Album, Results } from './index'
+import { Track, Album, Playlist, Results } from './index'
 import { existsSync } from 'fs'
 import { isArray } from 'util'
 import os from 'os'
 
 export const checkLinkType = (link: string) => {
     const reg =
-        /^(?:spotify:|(?:https?:\/\/(?:open|play|embed)\.spotify\.com\/))(?:embed|\?uri=spotify:|embed\?uri=spotify:)?\/?(album|track)(?::|\/)((?:[0-9a-zA-Z]){22})/
+        /^(?:spotify:|(?:https?:\/\/(?:open|play|embed)\.spotify\.com\/))(?:embed|\?uri=spotify:|embed\?uri=spotify:)?\/?(album|track|playlist)(?::|\/)((?:[0-9a-zA-Z]){22})/
     const match = link.match(reg)
     if (match) {
         return {
@@ -28,11 +28,13 @@ export const getProperURL = (id: string, type: string) => {
  * @param {Track|Album|Results[]} ob An object, can be type <Track>, <Album> or <Results[]>
  * @returns {string} "Track" | "Album" | "Results[]" | "None"
  */
-export const checkType = (ob: Track | Album | Results[]): 'Track' | 'Album' | 'Results[]' | 'None' => {
+export const checkType = (ob: Track | Album | Playlist | Results[]): 'Track' | 'Album' | 'Playlist' | 'Results[]' | 'None' => {
     if ('title' in ob && 'trackNumber' in ob) {
         return 'Track'
     } else if ('name' in ob && 'tracks' in ob) {
         return 'Album'
+    } else if ('name' in ob && 'owner' in ob) {
+        return 'Playlist'
     } else if ('status' in ob[0] && 'filename' in ob[0] && isArray(ob) == true) {
         return 'Results[]'
     } else {
