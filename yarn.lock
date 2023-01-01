@@ -277,9 +277,9 @@ ytdl-core@^4.11.2:
     sax "^1.1.3"
 
 ytmusic-api@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/ytmusic-api/-/ytmusic-api-4.0.2.tgz#13fcf1f09f1a7309c5d930cbc2668fc3b69925dd"
-  integrity sha512-0KIkXMhKa00O1FU/mpzbi9MoYcJbs7mu9d/6a+gGg7Z0MMEiQSYwlReEPtirFEDefzjN9aEgWGManIq0A1AxXA==
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/ytmusic-api/-/ytmusic-api-4.1.0.tgz#a93b56a7b0a76448e136c0e373e7a41c38c0123f"
+  integrity sha512-L4M2GF31gFMxytCUKkWsm2ZiDk+qs8CT7cibWB90ZQRNoEeWzpo3fMIv/mg1xvQTE+7pM3LZEmpsI10oEw1Z5w==
   dependencies:
     axios "^0.27.2"
     tough-cookie "^4.1.2"
