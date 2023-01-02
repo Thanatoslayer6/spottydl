@@ -160,10 +160,16 @@ export const downloadAlbum = async (
     }
 }
 
+/**
+ * Download the Spotify Playlist, need a <Playlist> type for first param, the second param is optional,
+ * function will return an array of <Results>
+ * @param {Playlist} obj An object of type <Playlist>, contains Playlist details and info
+ * @param {string} outputPath - String type, (optional) if not specified the output will be on the current dir
+ * @returns {Results[]} <Results[]> if successful, `string` if failed
+ */
 export const downloadPlaylist = async (
     obj: Playlist,
     outputPath: string = './',
-    sync: boolean = true
 ): Promise<Results[] | string> => {
     try {
         let Results: any = [];
@@ -210,7 +216,7 @@ export const downloadPlaylist = async (
 /**
  * Retries the download process if there are errors. Only use this after `downloadTrack()` or `downloadAlbum()` methods
  * checks for failed downloads then tries again, returns <Results[]> object array
- * @param {Results[]} obj An object of type <Results[]>, contains an array of results
+ * @param {Results[]} Info An object of type <Results[]>, contains an array of results
  * @returns {Results[]} <Results[]> array if the download process is successful, `true` if there are no errors and `false` if an error happened.
  */
 export const retryDownload = async (Info: Results[]): Promise<Results[] | boolean> => {

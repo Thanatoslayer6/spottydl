@@ -104,7 +104,7 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
 
 /**
  * Get the Playlist details of the given Spotify Playlist URL
- * @param {string} url Album URL ex `https://open.spotify.com/playlist/...`
+ * @param {string} url Playlist URL ex `https://open.spotify.com/playlist/...`
  * @returns {Playlist} <Playlist> if success, `string` if failed
  */
 export const getPlaylist = async (url: string = ''): Promise<Playlist | string> => {
@@ -128,35 +128,22 @@ export const getPlaylist = async (url: string = ''): Promise<Playlist | string> 
                 let trackTitle = trk.item.data.name
                 let trackArtists = trk.item.data.artists.items.map((i: any) => i.profile.name).join(', ')
                 let yt_trk = await ytm.searchSongs(`${trackTitle} - ${trackArtists}`)
-                // trk.id = yt_trk[0].videoId
                 return {
                     title: trackTitle,
                     artist: trackArtists,
-                    // artist: trk.item.data.artists.items.map((i: any) => i.profile.name).join(', '),
-                    // artist: trk.otherArtists.items.length == 0 ? spTrk.firstArtist.items[0].profile.name : spTrk.firstArtist.items[0].profile.name + ', ' + spTrk.otherArtists.items.map((i: any) => i?.profile?.name).join(', '),
-                    // year: `${spTrk.albumOfTrack.date.year}-${spTrk.albumOfTrack.date.month}-${spTrk.albumOfTrack.date.day}`,
-                    // album: spData.album.name || undefined,
+                    // year: Does not exist when scraping
                     album: trk.item.data.albumOfTrack.name,
                     id: yt_trk[0].videoId,
-                    // albumCoverURL: spData.data.entity.coverArt.sources[0].url,
                     albumCoverURL: trk.item.data.albumOfTrack.coverArt.sources[0].url,
-                    //trackNumber: spData.track_number || undefined
                     trackNumber: trk.item.data.trackNumber
                 }
             }),
-            // artist: spTrk.artists.items.map((e: any) => e.profile.name).join(', '),
-            // year: `${spTrk.date.year}-${spTrk.date.month}-${spTrk.date.day}`,
-            // tracks: [],
             playlistCoverURL: spPlaylist.images.items[0].sources[0].url
         }
         // Search the tracks from youtube concurrently
         await Promise.all(tags.tracks).then(items => {
             tags.tracks = items; 
         })
-        // for await (let trk of tags.tracks) {
-        //     let yt_trk = await ytm.searchSongs(`${trk.title} - ${trk.artist}`)
-        //     trk.id = yt_trk[0].videoId
-        // }
         return tags
     } catch (err: any) {
         return `Caught: ${err.name} | ${err.message}`
