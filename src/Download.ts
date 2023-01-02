@@ -167,12 +167,9 @@ export const downloadAlbum = async (
  * @param {string} outputPath - String type, (optional) if not specified the output will be on the current dir
  * @returns {Results[]} <Results[]> if successful, `string` if failed
  */
-export const downloadPlaylist = async (
-    obj: Playlist,
-    outputPath: string = './',
-): Promise<Results[] | string> => {
+export const downloadPlaylist = async (obj: Playlist, outputPath: string = './'): Promise<Results[] | string> => {
     try {
-        let Results: any = [];
+        let Results: any = []
         if (checkType(obj) != 'Playlist') {
             throw Error('obj passed is not of type <Playlist>')
         }
@@ -207,7 +204,7 @@ export const downloadPlaylist = async (
             }
         }
 
-        return Results;
+        return Results
     } catch (err: any) {
         return `Caught: ${err}`
     }

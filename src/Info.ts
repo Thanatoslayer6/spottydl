@@ -40,7 +40,12 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
         let tags: Track = {
             title: spTrk.name,
             // artist: tempartist,
-            artist: spTrk.otherArtists.items.length == 0 ? spTrk.firstArtist.items[0].profile.name : spTrk.firstArtist.items[0].profile.name + ', ' + spTrk.otherArtists.items.map((i: any) => i?.profile?.name).join(', '),
+            artist:
+                spTrk.otherArtists.items.length == 0
+                    ? spTrk.firstArtist.items[0].profile.name
+                    : spTrk.firstArtist.items[0].profile.name +
+                      ', ' +
+                      spTrk.otherArtists.items.map((i: any) => i?.profile?.name).join(', '),
             // artist: trk.data.entity.artists.map((i: any) => i.name).join(', '),
             // year: spData.data.entity.releaseDate,
             year: `${spTrk.albumOfTrack.date.year}-${spTrk.albumOfTrack.date.month}-${spTrk.albumOfTrack.date.day}`,
@@ -124,7 +129,7 @@ export const getPlaylist = async (url: string = ''): Promise<Playlist | string> 
             description: spPlaylist?.description,
             followerCount: spPlaylist.followers,
             trackCount: spPlaylist.content.totalCount,
-            tracks: spPlaylist.content.items.map(async(trk: any) => {
+            tracks: spPlaylist.content.items.map(async (trk: any) => {
                 let trackTitle = trk.item.data.name
                 let trackArtists = trk.item.data.artists.items.map((i: any) => i.profile.name).join(', ')
                 let yt_trk = await ytm.searchSongs(`${trackTitle} - ${trackArtists}`)
@@ -141,8 +146,8 @@ export const getPlaylist = async (url: string = ''): Promise<Playlist | string> 
             playlistCoverURL: spPlaylist.images.items[0].sources[0].url
         }
         // Search the tracks from youtube concurrently
-        await Promise.all(tags.tracks).then(items => {
-            tags.tracks = items; 
+        await Promise.all(tags.tracks).then((items) => {
+            tags.tracks = items
         })
         return tags
     } catch (err: any) {

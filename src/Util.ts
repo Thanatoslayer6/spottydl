@@ -28,7 +28,9 @@ export const getProperURL = (id: string, type: string) => {
  * @param {Track|Album|Playlist|Results[]} ob An object, can be type <Track>, <Album> or <Results[]>
  * @returns {string} "Track" | "Album" | "Playlist" | "Results[]" | "None"
  */
-export const checkType = (ob: Track | Album | Playlist | Results[]): 'Track' | 'Album' | 'Playlist' | 'Results[]' | 'None' => {
+export const checkType = (
+    ob: Track | Album | Playlist | Results[]
+): 'Track' | 'Album' | 'Playlist' | 'Results[]' | 'None' => {
     if ('title' in ob && 'trackNumber' in ob) {
         return 'Track'
     } else if ('name' in ob && 'tracks' in ob && 'albumCoverURL' in ob) {

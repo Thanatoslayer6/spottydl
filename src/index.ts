@@ -27,7 +27,7 @@ export type Playlist = {
     followerCount: number
     trackCount: number
     tracks: any | null
-    playlistCoverURL: string 
+    playlistCoverURL: string
 }
 
 export interface Results {

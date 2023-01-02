@@ -1,6 +1,6 @@
 {
   "name": "spottydl",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "NodeJS Spotify Downloader without any API Keys or Authentication",
   "main": "dist/index.js",
   "typings": "types/index.d.ts",
@@ -30,11 +30,11 @@
   "author": "Thanatoslayer6",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.2.1",
+    "axios": "^1.2.2",
     "fluent-ffmpeg": "^2.1.2",
     "node-id3": "^0.2.5",
     "ytdl-core": "^4.11.2",
-    "ytmusic-api": "^4.0.2"
+    "ytmusic-api": "^4.1.0"
   },
   "devDependencies": {
     "@types/fluent-ffmpeg": "^2.1.20",
