@@ -95,7 +95,7 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
         let yt_tracks: any | undefined = await get_album_playlist(alb[0].playlistId) // Get track ids from youtube
         spTrk.tracks.items.forEach((i: any, n: number) => {
             tags.tracks.push({
-                name: i.track.name,
+                title: i.track.name,
                 id: yt_tracks[n].playlistVideoRenderer.videoId,
                 trackNumber: i.track.trackNumber
             })
