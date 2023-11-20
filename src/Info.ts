@@ -130,17 +130,17 @@ export const getPlaylist = async (url: string = ''): Promise<Playlist | string> 
             followerCount: spPlaylist.followers,
             trackCount: spPlaylist.content.totalCount,
             tracks: spPlaylist.content.items.map(async (trk: any) => {
-                let trackTitle = trk.item.data.name
-                let trackArtists = trk.item.data.artists.items.map((i: any) => i.profile.name).join(', ')
+                let trackTitle = trk.itemV2.data.name
+                let trackArtists = trk.itemV2.data.artists.items.map((i: any) => i.profile.name).join(', ')
                 let yt_trk = await ytm.searchSongs(`${trackTitle} - ${trackArtists}`)
                 return {
                     title: trackTitle,
                     artist: trackArtists,
                     // year: Does not exist when scraping
-                    album: trk.item.data.albumOfTrack.name,
+                    album: trk.itemV2.data.albumOfTrack.name,
                     id: yt_trk[0].videoId,
-                    albumCoverURL: trk.item.data.albumOfTrack.coverArt.sources[0].url,
-                    trackNumber: trk.item.data.trackNumber
+                    albumCoverURL: trk.itemV2.data.albumOfTrack.coverArt.sources[0].url,
+                    trackNumber: trk.itemV2.data.trackNumber
                 }
             }),
             playlistCoverURL: spPlaylist.images.items[0].sources[0].url
