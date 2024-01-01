@@ -26,6 +26,11 @@ ansi-sequence-parser@^1.1.0:
   resolved "https://registry.yarnpkg.com/ansi-sequence-parser/-/ansi-sequence-parser-1.1.1.tgz#e0aa1cdcbc8f8bb0b5bca625aac41f5f056973cf"
   integrity sha512-vJXt3yiaUL4UU546s3rPXlsry/RnM730G1+HkpKE012AN0sx1eOrxSu95oKDIonskeLTijMgqWZ3uDEe3NFvyg==
 
+arktype@^1.0.28-alpha:
+  version "1.0.28-alpha"
+  resolved "https://registry.yarnpkg.com/arktype/-/arktype-1.0.28-alpha.tgz#26cb8ea9fef86a4dbae4868d6e5ba98b5f34f5b7"
+  integrity sha512-cjakiZXXa4+y1OL0oFk0HRjIrEwJhNNvkqXkiR53SOpyKHwSqFrjrQkY4K8MlnQybRhd/y4OG4NVDR1Ea4WDkQ==
+
 async@>=0.2.9:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/async/-/async-3.2.3.tgz#ac53dafd3f4720ee9e8a160628f18ea91df196c9"
@@ -289,22 +294,11 @@ ytdl-core@^4.11.5:
     miniget "^4.2.2"
     sax "^1.1.3"
 
-ytmusic-api@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/ytmusic-api/-/ytmusic-api-4.4.0.tgz#c6f536fb417dcbb3dc291f955471ece1bab71ec4"
-  integrity sha512-nfpaCWryHFN7b/RHagjEX60giF92lGIbos/UJVibLhPgpBe2/Co1ezmh1+6TKxCo4CgHTPL/+mrQZWu6NzEHYA==
+ytmusic-api@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/ytmusic-api/-/ytmusic-api-5.0.1.tgz#bfd5f5abdfeb0c46295b0f4c45880c4bdb4db010"
+  integrity sha512-Hzn4C0AgyDAWyZjPG9J/CUjDaXCPUx1rVM+BaOKRNR1HUjx8svigsTI1O+2tJIR9xlzS+jbsoHAZ/i14X1n+tQ==
   dependencies:
+    arktype "^1.0.28-alpha"
     axios "^0.27.2"
     tough-cookie "^4.1.2"
-    zod "^3.20.2"
-    zod-to-json-schema "^3.20.1"
-
-zod-to-json-schema@^3.20.1:
-  version "3.20.1"
-  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.20.1.tgz#4d387d7c1de6871ffcfd522ce25513f7597c03bc"
-  integrity sha512-U+zmNJUKqzv92E+LdEYv0g2LxBLks4HAwfC6cue8jXby5PAeSEPGO4xV9Sl4zmLYyFvJkm0FOfOs6orUO+AI1w==
-
-zod@^3.20.2:
-  version "3.20.2"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.20.2.tgz#068606642c8f51b3333981f91c0a8ab37dfc2807"
-  integrity sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==

@@ -34,7 +34,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "node-id3": "^0.2.6",
     "ytdl-core": "^4.11.5",
-    "ytmusic-api": "^4.4.0"
+    "ytmusic-api": "^5.0.1"
   },
   "devDependencies": {
     "@types/fluent-ffmpeg": "^2.1.24",
