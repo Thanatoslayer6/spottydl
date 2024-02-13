@@ -25,7 +25,8 @@ const dl_track = async (id: string, filename: string): Promise<boolean> => {
 const dl_album_normal = async (obj: Album, oPath: string, tags: any): Promise<Results[]> => {
     let Results: any = []
     for await (let res of obj.tracks) {
-        let filename = `${oPath}${res.name}.mp3`
+        let sanitizedTitle: string = res.title.replace(/[/\\]/g, ' ')
+        let filename = `${oPath}${sanitizedTitle}.mp3`
         let dlt = await dl_track(res.id, filename)
         if (dlt) {
             let tagStatus = NodeID3.update(tags, filename)
@@ -49,7 +50,8 @@ const dl_album_fast = async (obj: Album, oPath: string, tags: any): Promise<Resu
     let i: number = 0 // Variable for specifying the index of the loop
     return await new Promise<Results[]>(async (resolve, reject) => {
         for await (let res of obj.tracks) {
-            let filename = `${oPath}${res.name}.mp3`
+            let sanitizedTitle: string = res.title.replace(/[/\\]/g, ' ')
+            let filename = `${oPath}${sanitizedTitle}.mp3`
             ffmpeg(ytdl(res.id, { quality: 'highestaudio', filter: 'audioonly' }))
                 .audioBitrate(128)
                 .save(filename)
@@ -105,7 +107,10 @@ export const downloadTrack = async (obj: Track, outputPath: string = './'): Prom
                 imageBuffer: Buffer.from(albCover.data, 'utf-8')
             }
         }
-        let filename = `${checkPath(outputPath)}${obj.title}.mp3`
+
+        let sanitizedTitle: string = obj.title.replace(/[/\\]/g, ' ')
+        let filename: string = `${checkPath(outputPath)}${sanitizedTitle}.mp3`
+
         // EXPERIMENTAL
         let dlt = await dl_track(obj.id, filename)
         if (dlt) {
@@ -176,7 +181,8 @@ export const downloadPlaylist = async (obj: Playlist, outputPath: string = './')
 
         let oPath = checkPath(outputPath)
         for await (let res of obj.tracks) {
-            let filename = `${oPath}${res.title}.mp3`
+            let sanitizedTitle: string = res.title.replace(/[/\\]/g, ' ')
+            let filename = `${oPath}${sanitizedTitle}.mp3`
             let dlt = await dl_track(res.id, filename)
             let albCover = await axios.get(res.albumCoverURL, { responseType: 'arraybuffer' })
             let tags: any = {

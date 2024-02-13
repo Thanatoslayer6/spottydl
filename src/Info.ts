@@ -52,8 +52,8 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
             // album: spData.album.name || undefined,
             album: spTrk.albumOfTrack.name,
             id: 'ID',
-            // albumCoverURL: spData.data.entity.coverArt.sources[0].url,
-            albumCoverURL: spTrk.albumOfTrack.coverArt.sources[0].url,
+            // Get largest resolution
+            albumCoverURL: spTrk.albumOfTrack.coverArt.sources.slice(-1)[0].url,
             //trackNumber: spData.track_number || undefined
             trackNumber: spTrk.trackNumber
         }
@@ -86,7 +86,8 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
             artist: spTrk.artists.items.map((e: any) => e.profile.name).join(', '),
             year: `${spTrk.date.year}-${spTrk.date.month}-${spTrk.date.day}`,
             tracks: [],
-            albumCoverURL: spTrk.coverArt.sources[0].url
+            // albumCoverURL: spTrk.coverArt.sources[0].url
+            albumCoverURL: spTrk.coverArt.sources.slice(-1)[0].url
         }
 
         // Search the album
@@ -139,7 +140,8 @@ export const getPlaylist = async (url: string = ''): Promise<Playlist | string> 
                     // year: Does not exist when scraping
                     album: trk.itemV2.data.albumOfTrack.name,
                     id: yt_trk[0].videoId,
-                    albumCoverURL: trk.itemV2.data.albumOfTrack.coverArt.sources[0].url,
+                    // albumCoverURL: trk.itemV2.data.albumOfTrack.coverArt.sources[0].url,
+                    albumCoverURL: trk.itemV2.data.albumOfTrack.coverArt.sources.slice(-1)[0].url,
                     trackNumber: trk.itemV2.data.trackNumber
                 }
             }),
