@@ -31,7 +31,7 @@ export const getTrack = async (url: string = ''): Promise<Track | string> => {
         let linkData = checkLinkType(url)
         let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let info: any = /<script id="initial-state" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
+        let info: any = /<script id="initialState" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
 
         // Decode the base64 data, then parse as json... info[1] matches the encoded data
         let spData = JSON.parse(Buffer.from(decodeURIComponent(info[1]), 'base64').toString('utf8'))
@@ -77,7 +77,7 @@ export const getAlbum = async (url: string = ''): Promise<Album | string> => {
         let linkData = checkLinkType(url)
         let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let info: any = /<script id="initial-state" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
+        let info: any = /<script id="initialState" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
         let spData = JSON.parse(Buffer.from(decodeURIComponent(info[1]), 'base64').toString('utf8'))
         // Assign necessary items to a variable
         let spTrk = spData.entities.items[`spotify:${linkData.type}:${linkData.id}`]
@@ -118,7 +118,7 @@ export const getPlaylist = async (url: string = ''): Promise<Playlist | string> 
         let linkData = checkLinkType(url)
         let properURL = getProperURL(linkData.id, linkData.type)
         let sp = await axios.get(properURL)
-        let info: any = /<script id="initial-state" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
+        let info: any = /<script id="initialState" type="text\/plain">(.*?)<\/script>/s.exec(sp.data)
         let spData = JSON.parse(Buffer.from(decodeURIComponent(info[1]), 'base64').toString('utf8'))
         // Assign necessary items to a variable
         let spPlaylist = spData.entities.items[`spotify:${linkData.type}:${linkData.id}`]
