@@ -1,6 +1,5 @@
 import { Track, Album, Playlist, Results } from './index'
 import { existsSync } from 'fs'
-import { isArray } from 'util'
 import os from 'os'
 
 export const checkLinkType = (link: string) => {
@@ -37,7 +36,7 @@ export const checkType = (
         return 'Album'
     } else if ('name' in ob && 'owner' in ob && 'playlistCoverURL' in ob) {
         return 'Playlist'
-    } else if ('status' in ob[0] && 'filename' in ob[0] && isArray(ob) == true) {
+    } else if ('status' in ob[0] && 'filename' in ob[0] && Array.isArray(ob) == true) {
         return 'Results[]'
     } else {
         return 'None'

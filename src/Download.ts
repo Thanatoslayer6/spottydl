@@ -1,6 +1,6 @@
 import { Album, Track, Playlist, Results, checkType, checkPath } from './index'
 import NodeID3 from 'node-id3'
-import ytdl from 'ytdl-core'
+import ytdl from '@distube/ytdl-core'
 import ffmpeg from 'fluent-ffmpeg'
 import axios from 'axios'
 import { unlinkSync } from 'fs'
